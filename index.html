@@ -2,15 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Whack-a-Mole</title>
+    <title>Whack-a-Mole Enhanced</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Whack-a-Mole!</h1>
+    <h1>Whack-a-Mole Enhanced!</h1>
     <p>Score: <span id="score">0</span></p>
     <p>Time: <span id="time">30</span> seconds</p>
+    <div>
+        <label>Difficulty:</label>
+        <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+    </div>
     <div id="game-grid"></div>
     <button id="restartBtn">Restart</button>
+
+    <audio id="popSound" src="pop.mp3"></audio>
+    <audio id="bombSound" src="bomb.mp3"></audio>
+    <audio id="powerupSound" src="powerup.mp3"></audio>
 
     <script src="script.js"></script>
 </body>
