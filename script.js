@@ -2,11 +2,17 @@ const scoreDisplay = document.getElementById('score');
 const timeDisplay = document.getElementById('time');
 const gameGrid = document.getElementById('game-grid');
 const restartBtn = document.getElementById('restartBtn');
+const difficultySelect = document.getElementById('difficulty');
+
+const popSound = document.getElementById('popSound');
+const bombSound = document.getElementById('bombSound');
+const powerupSound = document.getElementById('powerupSound');
 
 let score = 0;
-let time = 30; // 30 seconds game
+let time = 30;
 let moleTimer;
 let countdownTimer;
+let spawnRate = 800;
 
 // Create 9 grid cells
 for (let i = 0; i < 9; i++) {
@@ -15,18 +21,38 @@ for (let i = 0; i < 9; i++) {
     gameGrid.appendChild(cell);
 }
 
-// Pick a random cell for mole
+// Difficulty settings
+function setDifficulty() {
+    const diff = difficultySelect.value;
+    if (diff === 'easy') spawnRate = 1000;
+    if (diff === 'medium') spawnRate = 800;
+    if (diff === 'hard') spawnRate = 500;
+}
+
+// Spawn random mole type
 function spawnMole() {
     document.querySelectorAll('.cell').forEach(c => c.innerHTML = '');
     const cells = document.querySelectorAll('.cell');
     const randomIndex = Math.floor(Math.random() * cells.length);
-    const mole = document.createElement('div');
-    mole.classList.add('mole');
-    cells[randomIndex].appendChild(mole);
+    const cell = cells[randomIndex];
 
-    // Click handler
+    const rand = Math.random();
+    let moleType = 'mole';
+    if (rand < 0.1) moleType = 'golden';
+    else if (rand < 0.2) moleType = 'bomb';
+    else if (rand < 0.25) moleType = 'powerup';
+
+    const mole = document.createElement('div');
+    mole.classList.add(moleType);
+    cell.appendChild(mole);
+
     mole.addEventListener('click', () => {
-        score++;
+        switch (moleType) {
+            case 'mole': score += 1; popSound.play(); break;
+            case 'golden': score += 5; popSound.play(); break;
+            case 'bomb': score -= 3; time -= 5; bombSound.play(); break;
+            case 'powerup': time += 5; powerupSound.play(); break;
+        }
         scoreDisplay.textContent = score;
         mole.remove();
     });
@@ -39,7 +65,7 @@ function countdown() {
     if (time <= 0) {
         clearInterval(moleTimer);
         clearInterval(countdownTimer);
-        alert(`Game Over! Your Score: ${score}`);
+        alert(`Game Over! Final Score: ${score}`);
     }
 }
 
@@ -49,16 +75,16 @@ function startGame() {
     time = 30;
     scoreDisplay.textContent = score;
     timeDisplay.textContent = time;
+    setDifficulty();
 
-    moleTimer = setInterval(spawnMole, 800); // Mole every 0.8 seconds
+    clearInterval(moleTimer);
+    clearInterval(countdownTimer);
+    moleTimer = setInterval(spawnMole, spawnRate);
     countdownTimer = setInterval(countdown, 1000);
 }
 
-restartBtn.addEventListener('click', () => {
-    clearInterval(moleTimer);
-    clearInterval(countdownTimer);
-    startGame();
-});
+restartBtn.addEventListener('click', startGame);
+difficultySelect.addEventListener('change', setDifficulty);
 
 // Auto-start
 startGame();
